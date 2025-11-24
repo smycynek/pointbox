@@ -1,0 +1,202 @@
+body {
+  background-color: palegoldenrod;
+  user-select: none;
+}
+
+hr {
+  background-color: black;
+  margin: 1px;
+  padding: 0px;
+}
+
+h1,
+h2 {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  font-family: sans-serif;
+}
+
+h2 {
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: large;
+}
+
+p,
+span,
+li,
+ul {
+  font-size: small;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+select,
+option {
+  margin-top: 2px;
+  margin-bottom: 5px;
+}
+
+input[type='checkbox'] {
+  margin-left: 5px;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border: 2px solid;
+  border-radius: 2px;
+  display: grid;
+  place-content: center;
+}
+
+input[type='checkbox']::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  clip-path: polygon(
+    20% 0%,
+    0% 20%,
+    30% 50%,
+    0% 80%,
+    20% 100%,
+    50% 70%,
+    80% 100%,
+    100% 80%,
+    70% 50%,
+    100% 20%,
+    80% 0%,
+    50% 30%
+  );
+  transform: scale(0);
+  transform-origin: bottom left;
+  background-color: black;
+}
+
+input[type='checkbox']:checked::before {
+  transform: scale(1);
+}
+
+.large {
+  font-size: large;
+}
+
+.label {
+  font-family: sans-serif;
+  font-size: large;
+}
+
+.right {
+  float: right;
+}
+
+.header,
+.row {
+  background-color: palegoldenrod;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: black;
+}
+
+.row {
+  flex-direction: row;
+}
+
+.monoLabelRed,
+.monoLabelBlue {
+  font-family: monospace;
+  font-weight: bold;
+  font-size: large;
+}
+
+.monoLabelRed {
+  margin-left: 0px;
+  margin-right: 0px;
+  color: red;
+}
+
+.monoLabelBlue {
+  margin-left: 0px;
+  margin-right: 0px;
+  color: blue;
+}
+
+.pointCanvas {
+  touch-action: manipulation;
+  border-width: 1px;
+  background-color: lightgrey;
+  border-style: solid;
+  margin: 5px;
+}
+
+.actionButton,
+.actionButtonWide {
+  font-family: sans-serif;
+  font-size: large;
+  margin: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
+  background-color: darkgoldenrod;
+  color: white;
+  height: 35px;
+  border-radius: 5px;
+  &:disabled {
+    color: lightgrey;
+  }
+}
+
+.actionButtonWide {
+  width: 175px;
+}
+
+.closeDialogButton {
+  font-size: large;
+  border-style: none;
+  color: black;
+  background-color: Transparent;
+  float: right;
+}
+
+.simpleList {
+  padding-inline-start: 15px;
+}
+
+.aboutLink {
+  border-style: none;
+  color: black;
+  background-color: Transparent;
+  margin: 0px;
+  padding: 0px;
+  margin: 3px;
+  padding: 3px;
+  text-decoration: underline;
+}
+
+.wideSelectList {
+  width: 180px;
+  font-size: large;
+}
+
+.aboutDialog {
+  background-color: palegoldenrod;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 20px;
+  border-style: solid;
+}
+
+.aboutDialogBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: 'rgba(0, 0, 0, 20)';
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
