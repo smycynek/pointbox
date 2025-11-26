@@ -49,7 +49,6 @@ async function iterativeGroup(
   ];
 
   let centroids = tf.tensor(initialCentroidsRaw);
-  let centroidsIntermediate: tf.Tensor | null = null;
   let assignmentsIterated: number[] = [];
   let mean0Iterated: number[] = [];
   let mean1Iterated: number[] = [];
@@ -83,8 +82,8 @@ async function iterativeGroup(
         }
         // We have an extra empty dimension here we don't need, so remove it with `squeeze`.
         const centroidsGroup = tf.stack([means[0], means[1]]);
-
-        centroidsIntermediate = centroidsGroup.squeeze([1]); // save new centroids
+        dispose(centroids);
+        centroids = centroidsGroup.squeeze([1]); // save new centroids
         [centroidsGroup, clusterPoints].forEach((t: tf.Tensor | tf.Tensor2D) => dispose(t));
         assignmentsIterated = (await assignments.array()) as number[];
         const rehapedMean1 = means[0].reshape([2]);
@@ -98,10 +97,6 @@ async function iterativeGroup(
       }
     })();
 
-    if (centroidsIntermediate) {
-      dispose(centroids);
-      centroids = centroidsIntermediate;
-    }
     [distances, assignments, means[0], means[1]].forEach((t: tf.Tensor | tf.Tensor2D) =>
       dispose(t)
     );
@@ -115,7 +110,6 @@ async function iterativeGroup(
   // Basically, the centroids tensor is used for the calculations, and the means array
   // more conveniently holds the output we pass to GroupData(...)
   dispose(centroids);
-  dispose(centroidsIntermediate);
 
   return new GroupData(assignmentsIterated, [
     new Point(mean0Iterated[0], mean0Iterated[1]),
