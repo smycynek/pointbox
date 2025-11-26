@@ -1,24 +1,10 @@
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-webgpu';
-
 import { Point } from './Point';
 import { refinements } from './config';
-import { distance, centroid } from './utility';
+import { distance, centroid, dispose } from './utility';
 import { GroupData } from './GroupData';
 import { Logger } from './Logger';
-
-// Typically true, just for debugging
-export function gcEnabled() {
-  return true;
-}
-
-function dispose(tensor: tf.Tensor | tf.Tensor2D | null) {
-  if (gcEnabled()) {
-    if (tensor) {
-      tensor.dispose();
-    }
-  }
-}
 
 export function getDistances(centroids: tf.Tensor, points: tf.Tensor) {
   return tf.tidy(() => {
@@ -29,6 +15,25 @@ export function getDistances(centroids: tf.Tensor, points: tf.Tensor) {
     const expandedCentroids = centroids.expandDims(0);
     return distance(expandedCentroids, expandedPoints); // find distance between each point and each centroid
   });
+}
+
+async function getClusterPoints(
+  clusterIndex: number,
+  points: tf.Tensor,
+  assignments: tf.Tensor
+): Promise<tf.Tensor2D> {
+  const clusterTensor = tf.tensor1d([clusterIndex]);
+  // array of bools stating if a given array position is a member of the current group
+  const boolTensor = tf.equal(clusterTensor, assignments);
+  dispose(clusterTensor);
+  Logger.info(`Group membership state for group ${clusterIndex}`, boolTensor);
+  // array of indices of points that are a member of the current group
+  const boolIndexTensor = await tf.whereAsync(boolTensor);
+  dispose(boolTensor);
+  // The actual points that are a member of the current group
+  const clusterPoints = points.gather(boolIndexTensor) as tf.Tensor2D;
+  dispose(boolIndexTensor);
+  return clusterPoints;
 }
 
 async function iterativeGroup(
@@ -64,39 +69,37 @@ async function iterativeGroup(
     // Initialize with starting centerpoints, will always be size 2
     await (async () => {
       for (let clusterIndex = 0; clusterIndex < clusters; clusterIndex += 1) {
-        const clusterTensor = tf.tensor1d([clusterIndex]);
-        // array of bools stating if a given array position is a member of the current group
-        const boolTensor = tf.equal(clusterTensor, assignments);
-        Logger.info(`Group membership state for group ${clusterIndex}, iteration ${i}`, boolTensor);
-        // array of indices of points that are a member of the current group
-        const boolIndexTensor = await tf.whereAsync(boolTensor);
-
-        // The actual points that are a member of the current group
-        const clusterPoints = points.gather(boolIndexTensor);
-        Logger.info(`Points for group ${clusterIndex}, iteration ${i}`, clusterPoints);
+        const clusterPoints = await getClusterPoints(clusterIndex, points, assignments);
         // Find the new centeroid of those points in the current group
         if (clusterPoints.shape[0] > 1) {
           // Don't find centroid if group not defined
           const mean = centroid(clusterPoints);
+          dispose(means[clusterIndex]);
           means[clusterIndex] = mean;
           Logger.info('Cluster can be grouped', clusterPoints);
         } else {
           // mean[clusterIndex] remains with default initial centroid value;
           Logger.info('Cluster cannot be grouped, using default', clusterPoints);
         }
-
         // We have an extra empty dimension here we don't need, so remove it with `squeeze`.
-        centroidsIntermediate = tf.stack([means[0], means[1]]).squeeze([1]); // save new centroids
-        [clusterPoints, boolIndexTensor, boolTensor, clusterTensor].forEach(
-          (t: tf.Tensor | tf.Tensor2D) => dispose(t)
-        );
+        const centroidsGroup = tf.stack([means[0], means[1]]);
+
+        centroidsIntermediate = centroidsGroup.squeeze([1]); // save new centroids
+        [centroidsGroup, clusterPoints].forEach((t: tf.Tensor | tf.Tensor2D) => dispose(t));
         assignmentsIterated = (await assignments.array()) as number[];
-        mean0Iterated = (await means[0].reshape([2]).array()) as number[]; // save centroids as array
-        mean1Iterated = (await means[1].reshape([2]).array()) as number[];
+        const rehapedMean1 = means[0].reshape([2]);
+        const rehapedMean2 = means[1].reshape([2]);
+
+        mean0Iterated = (await rehapedMean1.array()) as number[]; // save centroids as array
+        mean1Iterated = (await rehapedMean2.array()) as number[];
+
+        dispose(rehapedMean1);
+        dispose(rehapedMean2);
       }
     })();
 
     if (centroidsIntermediate) {
+      dispose(centroids);
       centroids = centroidsIntermediate;
     }
     [distances, assignments, means[0], means[1]].forEach((t: tf.Tensor | tf.Tensor2D) =>
@@ -111,7 +114,9 @@ async function iterativeGroup(
   // is an async operation, I found it easier to just store mean0Iterated and mean0Iterated.
   // Basically, the centroids tensor is used for the calculations, and the means array
   // more conveniently holds the output we pass to GroupData(...)
-  [centroids, centroidsIntermediate].forEach((t: tf.Tensor | tf.Tensor2D | null) => dispose(t));
+  dispose(centroids);
+  dispose(centroidsIntermediate);
+
   return new GroupData(assignmentsIterated, [
     new Point(mean0Iterated[0], mean0Iterated[1]),
     new Point(mean1Iterated[0], mean1Iterated[1]),

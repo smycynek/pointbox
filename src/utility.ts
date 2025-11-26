@@ -4,6 +4,22 @@ import '@tensorflow/tfjs-backend-webgpu'; // This adds the WebGL backend to the 
 import { Logger } from './Logger';
 import { getDistances } from './tensorGrouping';
 
+// Typically true, just for debugging
+export function gcEnabled() {
+  return true;
+}
+
+export function dispose(tensor: tf.Tensor | tf.Tensor2D | null) {
+  if (gcEnabled()) {
+    if (tensor) {
+      // console.log('dispose');
+      tensor.dispose();
+    } else {
+      console.log('Null tensor!');
+    }
+  }
+}
+
 export function randomSeedCentroid(max: number): Point {
   return new Point(Math.round(Math.random() * max), Math.round(Math.random() * max));
 }
@@ -13,7 +29,7 @@ export function centroid(points: tf.Tensor2D): tf.Tensor {
 }
 
 export function distance(pointRefs: tf.Tensor, pointList: tf.Tensor): tf.Tensor {
-  return pointList.sub(pointRefs).square().sum(-1).sqrt();
+  return tf.tidy(() => pointList.sub(pointRefs).square().sum(-1).sqrt());
 }
 
 export function getMousePos(canvas: HTMLCanvasElement, mouseEvent: MouseEvent): Point {
@@ -30,14 +46,21 @@ export function round2(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-export function logBackEndStats(): string {
+export function enableBackEnd(): string {
   tf.setBackend('webgpu').then(() => {
     console.log('webgpu enabled');
   });
   return tf.getBackend();
 }
 
-export function functionDemo() {
+export function logMemory(label?: string) {
+  if (label) {
+    console.log(label);
+  }
+  console.log(tf.memory());
+}
+
+export async function functionDemo() {
   Logger.enabled = true;
   const work = async () => {
     console.log('Simpler demo of TensorFlowJS functioned used in this app.');
@@ -75,15 +98,26 @@ export function functionDemo() {
     const assignments = tf.tensor1d(['a', 'a', 'a', 'b', 'b', 'a', 'a', 'a']);
     const dataMask = tf.tensor1d(['b']);
     const dataMaskResult = assignments.equal(dataMask);
-    const indicies = await tf.whereAsync(dataMaskResult);
-    const filteredData = tf.gather(originalData, indicies);
+    const indices = await tf.whereAsync(dataMaskResult);
+    const filteredData = tf.gather(originalData, indices);
     Logger.info('Intial data', originalData);
     Logger.info('Group assignments', assignments);
     Logger.info('DataMask for choosing group b', dataMask);
     Logger.info('Data mask results for b', dataMaskResult);
-    Logger.info('Indicies of group b items', indicies);
+    Logger.info('Indices of group b items', indices);
     Logger.info('Group b items', filteredData);
     console.log('-----');
+    dispose(centers);
+    dispose(points);
+    dispose(distances);
+    dispose(pairs);
+    dispose(pairMins);
+    dispose(originalData);
+    dispose(assignments);
+    dispose(dataMask);
+    dispose(dataMaskResult);
+    dispose(indices);
+    dispose(filteredData);
   };
-  work();
+  await work();
 }

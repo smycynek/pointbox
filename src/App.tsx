@@ -4,7 +4,7 @@ import { createMutable } from 'solid-js/store';
 import { Point } from './Point';
 import { groupPointsFromArray } from './tensorGrouping';
 import { Color } from './color';
-import { functionDemo, getMousePos, logBackEndStats, randomSeedCentroid } from './utility';
+import { functionDemo, getMousePos, enableBackEnd, logMemory, randomSeedCentroid } from './utility';
 import { AboutBox } from './AboutBox';
 import { Logger } from './Logger';
 
@@ -271,7 +271,7 @@ const App: Component = () => {
     }
   };
   onMount(() => {
-    const engine = logBackEndStats();
+    const engine = enableBackEnd();
     setEngine(engine);
     init();
   });
@@ -337,7 +337,9 @@ const App: Component = () => {
       <span onClick={[functionDemo, null]}>
         *Some have argued 'Minutes of Fun', but agree to disagree.
       </span>
-      <span class={styles.right}>{engine()} backend</span>
+      <span onClick={[logMemory, null]} class={styles.right}>
+        {engine()} backend
+      </span>
       <div>
         <AboutBox></AboutBox>
       </div>
