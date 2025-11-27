@@ -6,6 +6,9 @@ import { distance, centroid, dispose } from './utility';
 import { GroupData } from './GroupData';
 import { Logger } from './Logger';
 
+/*
+Get distances from each user point to each centerpoint.
+*/
 export function getDistances(centroids: tf.Tensor, points: tf.Tensor) {
   return tf.tidy(() => {
     // We need to add extra array dimensions with `expandDims` in different places so that
@@ -17,6 +20,10 @@ export function getDistances(centroids: tf.Tensor, points: tf.Tensor) {
   });
 }
 
+/*
+Given the a cluster 0 or 1 and the assignments array, retrieve points belonging to that
+cluster.
+*/
 async function getClusterPoints(
   clusterIndex: number,
   points: tf.Tensor,
@@ -36,6 +43,10 @@ async function getClusterPoints(
   return clusterPoints;
 }
 
+/*
+Perform a k-means grouping of points, starting with arbitrary centerpoint and
+iterating a few times (see config.ts)
+*/
 async function iterativeGroup(
   points: tf.Tensor2D,
   refinements: number,
@@ -57,7 +68,6 @@ async function iterativeGroup(
     const distances = getDistances(centroids, points);
     // assign group number (0 or 1) based on if point at that index is closer to
     //centroid 1 or centroid 2
-
     const assignments = distances.argMin(-1);
     Logger.trace('distances', distances);
     const means: Array<tf.Tensor> = [
@@ -101,23 +111,25 @@ async function iterativeGroup(
       dispose(t)
     );
   }
-
-  // You could derive these means from the single centroids tensor here rather than keeping the extra
-  // arrays, but because because we already have means[0] and means[1],
-  // are iterating on tensors, and getting data out of them
-  // is an async operation, I found it easier to just store mean0Iterated and mean0Iterated.
-  // Basically, the centroids tensor is used for the calculations, and the means array
-  // more conveniently holds the output we pass to GroupData(...)
+  /*
+  You could derive these means from the single centroids tensor here rather than keeping the extra
+  arrays, but because because we already have means[0] and means[1],
+  are iterating on tensors, and getting data out of them
+  is an async operation, I found it easier to just store mean0Iterated and mean0Iterated.
+  Basically, the centroids tensor is used for the calculations, and the means array
+  more conveniently holds the output we pass to GroupData(...)
+  */
   dispose(centroids);
-
   return new GroupData(assignmentsIterated, [
     new Point(mean0Iterated[0], mean0Iterated[1]),
     new Point(mean1Iterated[0], mean1Iterated[1]),
   ]);
 }
 
-// Called from UI, takes points from model and returns
-// group/assignment data and centroid data.
+/*
+Called from UI, takes points from model and returns
+group/assignment data and centroid data.
+*/
 export async function groupPointsFromArray(
   points: Point[],
   initialCentroids: Point[]

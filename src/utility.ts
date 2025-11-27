@@ -4,30 +4,49 @@ import '@tensorflow/tfjs-backend-webgpu'; // This adds the WebGL backend to the 
 import { Logger } from './Logger';
 import { getDistances } from './tensorGrouping';
 
-// Typically true, just for debugging
+/*
+Typically true, just for debugging
+*/
 export function gcEnabled() {
   return true;
 }
 
-export function dispose(tensor: tf.Tensor | tf.Tensor2D | null) {
+/*
+Not strictly needed, just to make debugging easier
+*/
+export function dispose(tensor: tf.Tensor | tf.Tensor2D) {
   if (gcEnabled()) {
-    if (tensor) {
-      // console.log('dispose');
-      tensor.dispose();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dataId: any = tensor.dataId;
+    if (tensor.isDisposed) {
+      Logger.trace(`Tensor ${dataId.id}`, 'Already disposed!');
     } else {
-      console.log('Null tensor!');
+      Logger.trace(`Tensor ${dataId.id}`, 'Disposed!');
+      tensor.dispose();
     }
   }
 }
 
+/*
+Some implementations take random points from the collection of user-entered points, but
+this also works well.
+*/
 export function randomSeedCentroid(max: number): Point {
   return new Point(Math.round(Math.random() * max), Math.round(Math.random() * max));
 }
 
+/*
+From a collection of points, take the average xs and ys and return one
+point (as a tensor)
+*/
 export function centroid(points: tf.Tensor2D): tf.Tensor {
   return points.mean(0);
 }
 
+/*
+Return the distance of each point in pointList (the user points)
+to each point in pointRefs (the center points) and return in a new tensor.
+*/
 export function distance(pointRefs: tf.Tensor, pointList: tf.Tensor): tf.Tensor {
   return tf.tidy(() => pointList.sub(pointRefs).square().sum(-1).sqrt());
 }
@@ -46,6 +65,10 @@ export function round2(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
+/*
+Most modern environments support webGPU. WebGL or CPU will also work
+but will be slower
+*/
 export function enableBackEnd(): string {
   tf.setBackend('webgpu').then(() => {
     Logger.info('Backend set: ', tf.getBackend());
@@ -53,10 +76,17 @@ export function enableBackEnd(): string {
   return tf.getBackend();
 }
 
+/*
+Memory leaks in tensors are occasionally easy to miss, so this
+helps us determine if anything was not properly freed.
+*/
 export function logMemory(label: string) {
   Logger.info(label, JSON.stringify(tf.memory(), null, 4));
 }
 
+/*
+A quick demo of most of the functions used in this app.
+*/
 export async function functionDemo() {
   const work = async () => {
     console.log('Simpler demo of TensorFlowJS functioned used in this app.');

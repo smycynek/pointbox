@@ -2,8 +2,9 @@
 
 import * as tf from '@tensorflow/tfjs';
 
-// I didn't feel like installing a logging package, so this is fine for now.
-
+/*
+I didn't feel like installing a logging package, so this is fine for now.
+*/
 export enum LoggerLevel {
   None,
   Info,
