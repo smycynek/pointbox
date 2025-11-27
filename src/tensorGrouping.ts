@@ -26,7 +26,7 @@ async function getClusterPoints(
   // array of bools stating if a given array position is a member of the current group
   const boolTensor = tf.equal(clusterTensor, assignments);
   dispose(clusterTensor);
-  Logger.info(`Group membership state for group ${clusterIndex}`, boolTensor);
+  Logger.trace(`Group membership state for group ${clusterIndex}`, boolTensor);
   // array of indices of points that are a member of the current group
   const boolIndexTensor = await tf.whereAsync(boolTensor);
   dispose(boolTensor);
@@ -58,9 +58,8 @@ async function iterativeGroup(
     // assign group number (0 or 1) based on if point at that index is closer to
     //centroid 1 or centroid 2
 
-    Logger.info('distances', distances);
     const assignments = distances.argMin(-1);
-
+    Logger.trace('distances', distances);
     const means: Array<tf.Tensor> = [
       tf.tensor2d([initialCentroids[0].x, initialCentroids[0].y], [1, 2]),
       tf.tensor2d([initialCentroids[1].x, initialCentroids[1].y], [1, 2]),
@@ -75,10 +74,10 @@ async function iterativeGroup(
           const mean = centroid(clusterPoints);
           dispose(means[clusterIndex]);
           means[clusterIndex] = mean;
-          Logger.info('Cluster can be grouped', clusterPoints);
+          Logger.trace('Cluster can be grouped', clusterPoints);
         } else {
           // mean[clusterIndex] remains with default initial centroid value;
-          Logger.info('Cluster cannot be grouped, using default', clusterPoints);
+          Logger.trace('Cluster cannot be grouped, using default', clusterPoints);
         }
         // We have an extra empty dimension here we don't need, so remove it with `squeeze`.
         const centroidsGroup = tf.stack([means[0], means[1]]);
@@ -95,13 +94,13 @@ async function iterativeGroup(
         dispose(rehapedMean1);
         dispose(rehapedMean2);
       }
+      Logger.info(`Centroids, iteration ${i}`, centroids);
     })();
 
     [distances, assignments, means[0], means[1]].forEach((t: tf.Tensor | tf.Tensor2D) =>
       dispose(t)
     );
   }
-  Logger.info('Centroids', centroids);
 
   // You could derive these means from the single centroids tensor here rather than keeping the extra
   // arrays, but because because we already have means[0] and means[1],

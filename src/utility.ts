@@ -48,20 +48,16 @@ export function round2(v: number): number {
 
 export function enableBackEnd(): string {
   tf.setBackend('webgpu').then(() => {
-    console.log('webgpu enabled');
+    Logger.info('Backend set: ', tf.getBackend());
   });
   return tf.getBackend();
 }
 
-export function logMemory(label?: string) {
-  if (label) {
-    console.log(label);
-  }
-  console.log(tf.memory());
+export function logMemory(label: string) {
+  Logger.info(label, JSON.stringify(tf.memory(), null, 4));
 }
 
 export async function functionDemo() {
-  Logger.enabled = true;
   const work = async () => {
     console.log('Simpler demo of TensorFlowJS functioned used in this app.');
     console.log('Example 1, distance to points');

@@ -6,7 +6,7 @@ import { groupPointsFromArray } from './tensorGrouping';
 import { Color } from './color';
 import { functionDemo, getMousePos, enableBackEnd, logMemory, randomSeedCentroid } from './utility';
 import { AboutBox } from './AboutBox';
-import { Logger } from './Logger';
+import { Logger, LoggerLevel } from './Logger';
 
 const App: Component = () => {
   let canvas: HTMLCanvasElement;
@@ -116,8 +116,18 @@ const App: Component = () => {
   };
 
   const toggleLog = () => {
-    console.log('Logging toggle');
-    Logger.enabled = !Logger.enabled;
+    console.log('Cycle logging');
+    switch (Logger.loggerLevel) {
+      case LoggerLevel.None:
+        Logger.loggerLevel = LoggerLevel.Info;
+        break;
+      case LoggerLevel.Info:
+        Logger.loggerLevel = LoggerLevel.Trace;
+        break;
+      default:
+        Logger.loggerLevel = LoggerLevel.None;
+    }
+    console.log(`Set to ${LoggerLevel[Logger.loggerLevel]}`);
   };
 
   const init = () => {
@@ -337,7 +347,7 @@ const App: Component = () => {
       <span onClick={[functionDemo, null]}>
         *Some have argued 'Minutes of Fun', but agree to disagree.
       </span>
-      <span onClick={[logMemory, null]} class={styles.right}>
+      <span onClick={[logMemory, 'Debug']} class={styles.right}>
         {engine()} backend
       </span>
       <div>
