@@ -289,7 +289,9 @@ const App: Component = () => {
   return (
     <div>
       <header class={styles.header}>
-        <h1 onClick={[toggleLog, null]}>Point Box</h1>
+        <h1 title="Toggle Log" onClick={[toggleLog, null]}>
+          Point Box
+        </h1>
         <h2>Hours of Fun*</h2>
         <p>
           Click points on the grey canvas. Click 'Group' to watch group assignment. Watch how the
@@ -344,10 +346,10 @@ const App: Component = () => {
       </div>
       <hr />
 
-      <span onClick={[functionDemo, null]}>
+      <span title="Function demo" onClick={[functionDemo, null]}>
         *Some have argued 'Minutes of Fun', but agree to disagree.
       </span>
-      <span onClick={[logMemory, 'Debug']} class={styles.right}>
+      <span title="Memory log" onClick={[logMemory, 'Debug']} class={styles.right}>
         {engine()} backend
       </span>
       <div>
