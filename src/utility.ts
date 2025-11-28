@@ -103,19 +103,23 @@ A quick demo of most of the functions used in this app.
 */
 export async function functionDemo() {
   const work = async () => {
-    console.log('Simpler demo of TensorFlowJS functioned used in this app.');
-    console.log('Example 1, distance to points');
+    Logger.info('-Demo-', 'Simpler demo of TensorFlowJS functioned used in this app.');
+    Logger.info('-Demo-', 'Example 1, distance to points');
 
-    const centers = tf.tensor2d([
-      [1, 1],
-      [10, 10],
-    ]);
+    const centers = logId(
+      tf.tensor2d([
+        [1, 1],
+        [10, 10],
+      ])
+    );
     Logger.info('Center points', centers);
 
-    const points = tf.tensor2d([
-      [2, 2],
-      [8, 8],
-    ]);
+    const points = logId(
+      tf.tensor2d([
+        [2, 2],
+        [8, 8],
+      ])
+    );
     Logger.info('Points to measure', points);
 
     const distances = getDistances(centers, points);
@@ -123,27 +127,30 @@ export async function functionDemo() {
     dispose(points);
     Logger.info('Distances from each point to each center', distances);
     dispose(distances);
-    console.log('------');
+    Logger.info('-Demo-', 'end');
 
-    console.log('Example 2, find lesser of each pair');
-    const pairs = tf.tensor2d([
-      [1, 2],
-      [5, 1],
-      [3, 7],
-    ]);
+    Logger.info('-Demo-', 'Example 2, find lesser of each pair');
+    const pairs = logId(
+      tf.tensor2d([
+        [1, 2],
+        [5, 1],
+        [3, 7],
+      ])
+    );
     Logger.info('a,b pairs', pairs);
 
-    const pairMins = pairs.argMin(-1);
+    const pairMins = logId(pairs.argMin(-1));
     dispose(pairs);
     Logger.info('Min value of each pair', pairMins);
     dispose(pairMins);
-    console.log('-----');
-    console.log('Example 3, group assignment');
-    const originalData = tf.tensor1d([0, 10, 20, 30, 40, 50, 60, 70]);
-    const assignments = tf.tensor1d(['a', 'a', 'a', 'b', 'b', 'a', 'a', 'a']);
-    const dataMask = tf.tensor1d(['b']);
-    const dataMaskResult = assignments.equal(dataMask);
+    Logger.info('-Demo-', 'end');
+    Logger.info('-Demo', 'Example 3, group assignment');
+    const originalData = logId(tf.tensor1d([0, 10, 20, 30, 40, 50, 60, 70]));
+    const assignments = logId(tf.tensor1d(['a', 'a', 'a', 'b', 'b', 'a', 'a', 'a']));
+    const dataMask = logId(tf.tensor1d(['b']));
+    const dataMaskResult = logId(assignments.equal(dataMask));
     const indices = await tf.whereAsync(dataMaskResult);
+    logId(indices);
     const filteredData = logId(tf.gather(originalData, indices), 'Filtered data allocated');
     Logger.info('Intial data', originalData);
     dispose(originalData);
@@ -157,7 +164,7 @@ export async function functionDemo() {
     Logger.info('Group b items', filteredData);
     dispose(indices);
     dispose(filteredData);
-    console.log('-----');
+    Logger.info('-Demo-', 'end');
   };
   await work();
 }
