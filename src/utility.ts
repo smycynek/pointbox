@@ -19,12 +19,25 @@ export function dispose(tensor: tf.Tensor | tf.Tensor2D) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dataId: any = tensor.dataId;
     if (tensor.isDisposed) {
-      Logger.trace(`Tensor ${dataId.id}`, 'Already disposed!');
+      Logger.trace(`Tensor id: ${dataId.id}`, 'Already disposed!');
     } else {
-      Logger.trace(`Tensor ${dataId.id}`, 'Disposed!');
+      Logger.trace(`Tensor id: ${dataId.id}`, 'Disposed!');
       tensor.dispose();
     }
   }
+}
+
+/*
+Log tensor id, conveniently returns what is passed to it
+*/
+export function logId(
+  tensor: tf.Tensor | tf.Tensor2D,
+  prefix: string = ''
+): tf.Tensor | tf.Tensor2D {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dataId: any = tensor.dataId;
+  Logger.trace(`${prefix} Tensor id:`, `${dataId.id}`);
+  return tensor;
 }
 
 /*
@@ -39,8 +52,9 @@ export function randomSeedCentroid(max: number): Point {
 From a collection of points, take the average xs and ys and return one
 point (as a tensor)
 */
-export function centroid(points: tf.Tensor2D): tf.Tensor {
-  return points.mean(0);
+export function centroid(points: tf.Tensor2D | tf.Tensor): tf.Tensor {
+  const centroid = points.mean(0);
+  return logId(centroid, 'Centroid allocated');
 }
 
 /*
@@ -105,7 +119,10 @@ export async function functionDemo() {
     Logger.info('Points to measure', points);
 
     const distances = getDistances(centers, points);
+    dispose(centers);
+    dispose(points);
     Logger.info('Distances from each point to each center', distances);
+    dispose(distances);
     console.log('------');
 
     console.log('Example 2, find lesser of each pair');
@@ -117,7 +134,9 @@ export async function functionDemo() {
     Logger.info('a,b pairs', pairs);
 
     const pairMins = pairs.argMin(-1);
+    dispose(pairs);
     Logger.info('Min value of each pair', pairMins);
+    dispose(pairMins);
     console.log('-----');
     console.log('Example 3, group assignment');
     const originalData = tf.tensor1d([0, 10, 20, 30, 40, 50, 60, 70]);
@@ -125,25 +144,20 @@ export async function functionDemo() {
     const dataMask = tf.tensor1d(['b']);
     const dataMaskResult = assignments.equal(dataMask);
     const indices = await tf.whereAsync(dataMaskResult);
-    const filteredData = tf.gather(originalData, indices);
+    const filteredData = logId(tf.gather(originalData, indices), 'Filtered data allocated');
     Logger.info('Intial data', originalData);
+    dispose(originalData);
     Logger.info('Group assignments', assignments);
+    dispose(assignments);
     Logger.info('DataMask for choosing group b', dataMask);
     Logger.info('Data mask results for b', dataMaskResult);
-    Logger.info('Indices of group b items', indices);
-    Logger.info('Group b items', filteredData);
-    console.log('-----');
-    dispose(centers);
-    dispose(points);
-    dispose(distances);
-    dispose(pairs);
-    dispose(pairMins);
-    dispose(originalData);
-    dispose(assignments);
     dispose(dataMask);
     dispose(dataMaskResult);
+    Logger.info('Indices of group b items', indices);
+    Logger.info('Group b items', filteredData);
     dispose(indices);
     dispose(filteredData);
+    console.log('-----');
   };
   await work();
 }
