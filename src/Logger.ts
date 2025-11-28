@@ -27,13 +27,14 @@ export class Logger {
   }
 
   static implementation(prefix: string, data: string | tf.Tensor | tf.Tensor2D) {
-    console.log(prefix);
     if (data instanceof tf.tensor2d) {
+      console.log(prefix);
       data.print();
     } else if (data instanceof tf.Tensor) {
+      console.log(prefix);
       data.print();
     } else {
-      console.log(data);
+      console.log(`${prefix} ${data}`);
     }
     console.log('---');
   }

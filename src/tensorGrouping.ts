@@ -2,7 +2,7 @@ import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-webgpu';
 import { Point } from './Point';
 import { refinements } from './config';
-import { distance, centroid, dispose } from './utility';
+import { distance, centroid, dispose, logId } from './utility';
 import { GroupData } from './GroupData';
 import { Logger } from './Logger';
 
@@ -10,13 +10,15 @@ import { Logger } from './Logger';
 Get distances from each user point to each centerpoint.
 */
 export function getDistances(centroids: tf.Tensor, points: tf.Tensor) {
+  // Note that the distance tensor allocated will need to be deallocated, but everything inside
+  // the 'tidy' will be deallocated for you.
   return tf.tidy(() => {
     // We need to add extra array dimensions with `expandDims` in different places so that
     // the distance formula can work on a vector rather than a scalar for each centroid against
     // each point
     const expandedPoints = points.expandDims(1);
     const expandedCentroids = centroids.expandDims(0);
-    return distance(expandedCentroids, expandedPoints); // find distance between each point and each centroid
+    return logId(distance(expandedCentroids, expandedPoints), 'Distances allocated'); // find distance between each point and each centroid
   });
 }
 
@@ -28,7 +30,7 @@ async function getClusterPoints(
   clusterIndex: number,
   points: tf.Tensor,
   assignments: tf.Tensor
-): Promise<tf.Tensor2D> {
+): Promise<tf.Tensor2D | tf.Tensor> {
   const clusterTensor = tf.tensor1d([clusterIndex]);
   // array of bools stating if a given array position is a member of the current group
   const boolTensor = tf.equal(clusterTensor, assignments);
@@ -40,7 +42,7 @@ async function getClusterPoints(
   // The actual points that are a member of the current group
   const clusterPoints = points.gather(boolIndexTensor) as tf.Tensor2D;
   dispose(boolIndexTensor);
-  return clusterPoints;
+  return logId(clusterPoints, 'ClusterPoints allocated');
 }
 
 /*
