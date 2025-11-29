@@ -15,7 +15,7 @@ This demo is used in a small 'Getting started in ML' talk I'm giving soon.
 
 ## Installation
 
-You will need a recent version of [NodeJS](https://nodejs.org/en) and either npm or [bun](https://bun.com/),
+You will need a recent version of [Node.js](https://nodejs.org/en) and either npm or [bun](https://bun.com/),
 along with a basic knowledge of bash and modern web deployment.
 
 // Set up and debug
