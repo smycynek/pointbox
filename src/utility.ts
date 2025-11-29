@@ -104,7 +104,7 @@ A quick demo of most of the functions used in this app.
 export async function functionDemo() {
   const work = async () => {
     Logger.info('-Demo-', 'Simpler demo of TensorFlowJS functioned used in this app.');
-    Logger.info('-Demo-', 'Example 1, distance to points');
+    Logger.info('-Example 1-', 'Distance to points');
 
     const centers = logId(
       tf.tensor2d([
@@ -127,9 +127,9 @@ export async function functionDemo() {
     dispose(points);
     Logger.info('Distances from each point to each center', distances);
     dispose(distances);
-    Logger.info('-Demo-', 'end');
+    Logger.info('-Example 1-', 'End');
 
-    Logger.info('-Demo-', 'Example 2, find lesser of each pair');
+    Logger.info('-Example 2-', 'Find lesser of each pair');
     const pairs = logId(
       tf.tensor2d([
         [1, 2],
@@ -143,8 +143,8 @@ export async function functionDemo() {
     dispose(pairs);
     Logger.info('Min value of each pair', pairMins);
     dispose(pairMins);
-    Logger.info('-Demo-', 'end');
-    Logger.info('-Demo', 'Example 3, group assignment');
+    Logger.info('-Example 2-', 'End');
+    Logger.info('-Example 3-', 'Group assignment');
     const originalData = logId(tf.tensor1d([0, 10, 20, 30, 40, 50, 60, 70]));
     const assignments = logId(tf.tensor1d(['a', 'a', 'a', 'b', 'b', 'a', 'a', 'a']));
     const dataMask = logId(tf.tensor1d(['b']));
@@ -152,7 +152,7 @@ export async function functionDemo() {
     const indices = await tf.whereAsync(dataMaskResult);
     logId(indices);
     const filteredData = logId(tf.gather(originalData, indices), 'Filtered data allocated');
-    Logger.info('Intial data', originalData);
+    Logger.info('Initial data', originalData);
     dispose(originalData);
     Logger.info('Group assignments', assignments);
     dispose(assignments);
@@ -164,7 +164,7 @@ export async function functionDemo() {
     Logger.info('Group b items', filteredData);
     dispose(indices);
     dispose(filteredData);
-    Logger.info('-Demo-', 'end');
+    Logger.info('-Example 3-', 'End');
   };
   await work();
 }
