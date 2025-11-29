@@ -36,16 +36,14 @@ along with a basic knowledge of bash and modern web deployment.
 
 `deploy.sh`
 
-
 ## Other notes
 
 There are a few hidden features to help with debugging.
 
 - Click on the 'Point Box' `<h1>` title to cycle through logging levels
 - Click on the 'Agree to disagree' joke to run a short demo script in the console showing
-all the major TensorFlow.js functions we use
+  all the major TensorFlow.js functions we use
 - Click on the 'WebGPU/CPU backend' text to show memory usage in the console.
-
 
 # Live demo
 
