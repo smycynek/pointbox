@@ -61,7 +61,7 @@ async function iterativeGroup(
     [initialCentroids[1].y, initialCentroids[1].y],
   ];
 
-  let centroids = tf.tensor(initialCentroidsRaw);
+  let centroids = logId(tf.tensor(initialCentroidsRaw), 'Centroids allocated');
   let assignmentsIterated: number[] = [];
   let mean0Iterated: number[] = [];
   let mean1Iterated: number[] = [];

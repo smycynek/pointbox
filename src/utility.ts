@@ -152,7 +152,7 @@ export async function functionDemo() {
     const indices = await tf.whereAsync(dataMaskResult);
     logId(indices);
     const filteredData = logId(tf.gather(originalData, indices), 'Filtered data allocated');
-    Logger.info('Intial data', originalData);
+    Logger.info('Initial data', originalData);
     dispose(originalData);
     Logger.info('Group assignments', assignments);
     dispose(assignments);
