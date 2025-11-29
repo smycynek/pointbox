@@ -70,7 +70,7 @@ async function iterativeGroup(
     const distances = getDistances(centroids, points);
     // assign group number (0 or 1) based on if point at that index is closer to
     //centroid 1 or centroid 2
-    const assignments = distances.argMin(-1);
+    const assignments = distances.argMin(1);
     Logger.trace('distances', distances);
     const means: Array<tf.Tensor> = [
       tf.tensor2d([initialCentroids[0].x, initialCentroids[0].y], [1, 2]),
@@ -97,14 +97,14 @@ async function iterativeGroup(
         centroids = centroidsGroup.squeeze([1]); // save new centroids
         [centroidsGroup, clusterPoints].forEach((t: tf.Tensor | tf.Tensor2D) => dispose(t));
         assignmentsIterated = (await assignments.array()) as number[];
-        const rehapedMean1 = means[0].reshape([2]);
-        const rehapedMean2 = means[1].reshape([2]);
+        const flattenedMean0 = means[0].squeeze([0]);
+        const flattenedMean1 = means[1].squeeze([0]);
 
-        mean0Iterated = (await rehapedMean1.array()) as number[]; // save centroids as array
-        mean1Iterated = (await rehapedMean2.array()) as number[];
+        mean0Iterated = (await flattenedMean0.array()) as number[]; // save centroids as array
+        mean1Iterated = (await flattenedMean1.array()) as number[];
 
-        dispose(rehapedMean1);
-        dispose(rehapedMean2);
+        dispose(flattenedMean0);
+        dispose(flattenedMean1);
       }
       Logger.info(`Centroids, iteration ${i}`, centroids);
     })();
