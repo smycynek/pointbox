@@ -139,7 +139,7 @@ export async function functionDemo() {
     );
     Logger.info('a,b pairs', pairs);
 
-    const pairMins = logId(pairs.argMin(-1));
+    const pairMins = logId(pairs.argMin(1));
     dispose(pairs);
     Logger.info('Min value of each pair', pairMins);
     dispose(pairMins);
