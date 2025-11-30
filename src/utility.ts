@@ -65,7 +65,7 @@ to each point in pointRefs (the center points) and return in a new tensor.
 export function distance(pointRefs: tf.Tensor, pointList: tf.Tensor): tf.Tensor {
   // sqrt is not technically needed here, since we only want the relative magnitude of each distance,
   // but still including it here for ease of debugging.
-  return tf.tidy(() => pointList.sub(pointRefs).square().sum(-1).sqrt());  // -1 is the last axis, non-intuitive
+  return tf.tidy(() => pointList.sub(pointRefs).square().sum(-1).sqrt()); // -1 is the last axis, non-intuitive
 }
 
 export function getMousePos(canvas: HTMLCanvasElement, mouseEvent: MouseEvent): Point {
