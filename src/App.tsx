@@ -349,7 +349,7 @@ const App: Component = () => {
       <span title="Function demo" onClick={[functionDemo, null]}>
         *Some have argued 'Minutes of Fun', but agree to disagree.
       </span>
-      <span title="Memory log" onClick={[logMemory, 'Debug']} class={styles.right}>
+      <span title="Memory log" onClick={[logMemory, 'Memory info']} class={styles.right}>
         {engine()} backend
       </span>
       <div>

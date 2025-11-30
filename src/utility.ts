@@ -3,6 +3,7 @@ import { Point } from './Point';
 import '@tensorflow/tfjs-backend-webgpu'; // This adds the WebGL backend to the global backend registry
 import { Logger } from './Logger';
 import { getDistances } from './tensorGrouping';
+import { enableMemoryTrace } from './config';
 
 /*
 Typically true, just for debugging
@@ -62,7 +63,9 @@ Return the distance of each point in pointList (the user points)
 to each point in pointRefs (the center points) and return in a new tensor.
 */
 export function distance(pointRefs: tf.Tensor, pointList: tf.Tensor): tf.Tensor {
-  return tf.tidy(() => pointList.sub(pointRefs).square().sum(-1).sqrt());
+  // sqrt is not technically needed here, since we only want the relative magnitude of each distance,
+  // but still including it here for ease of debugging.
+  return tf.tidy(() => pointList.sub(pointRefs).square().sum(-1).sqrt()); // -1 is the last axis, non-intuitive
 }
 
 export function getMousePos(canvas: HTMLCanvasElement, mouseEvent: MouseEvent): Point {
@@ -84,7 +87,12 @@ Most modern environments support webGPU. WebGL or CPU will also work
 but will be slower
 */
 export function enableBackEnd(): string {
-  tf.setBackend('webgpu').then(() => {
+  let backend = 'webgpu';
+  if (enableMemoryTrace) {
+    backend = 'cpu';
+    tf.enableDebugMode();
+  }
+  tf.setBackend(backend).then(() => {
     Logger.info('Backend set: ', tf.getBackend());
   });
   return tf.getBackend();
