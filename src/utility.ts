@@ -3,6 +3,7 @@ import { Point } from './Point';
 import '@tensorflow/tfjs-backend-webgpu'; // This adds the WebGL backend to the global backend registry
 import { Logger } from './Logger';
 import { getDistances } from './tensorGrouping';
+import { enableMemoryTrace } from './config';
 
 /*
 Typically true, just for debugging
@@ -84,7 +85,12 @@ Most modern environments support webGPU. WebGL or CPU will also work
 but will be slower
 */
 export function enableBackEnd(): string {
-  tf.setBackend('webgpu').then(() => {
+  let backend = 'webgpu';
+  if (enableMemoryTrace) {
+    backend = 'cpu';
+    tf.enableDebugMode();
+  }
+  tf.setBackend(backend).then(() => {
     Logger.info('Backend set: ', tf.getBackend());
   });
   return tf.getBackend();
