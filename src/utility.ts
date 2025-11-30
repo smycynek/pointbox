@@ -65,7 +65,9 @@ to each point in pointRefs (the center points) and return in a new tensor.
 export function distance(pointRefs: tf.Tensor, pointList: tf.Tensor): tf.Tensor {
   // sqrt is not technically needed here, since we only want the relative magnitude of each distance,
   // but still including it here for ease of debugging.
-  return tf.tidy(() => pointList.sub(pointRefs).square().sum(-1).sqrt()); // -1 is the last axis, non-intuitive
+
+  // squaredDifference is a nice convenience here
+  return tf.tidy(() => pointList.squaredDifference(pointRefs).sum(-1).sqrt()); // -1 is the last axis, non-intuitive
 }
 
 export function getMousePos(canvas: HTMLCanvasElement, mouseEvent: MouseEvent): Point {
@@ -118,6 +120,7 @@ export async function functionDemo() {
       tf.tensor2d([
         [1, 1],
         [10, 10],
+        [20, 20],
       ])
     );
     Logger.info('Center points', centers);
@@ -131,10 +134,42 @@ export async function functionDemo() {
     Logger.info('Points to measure', points);
 
     const distances = getDistances(centers, points);
-    dispose(centers);
-    dispose(points);
     Logger.info('Distances from each point to each center', distances);
     dispose(distances);
+
+    Logger.info('-Extra-', ' Examine distance in detail');
+
+    Logger.info('points shape', points.shape.toString());
+    Logger.info('centers shape', centers.shape.toString());
+    Logger.info('Note the shape mismatch', '');
+    const expandedPoints = points.expandDims(1);
+    const expandedCenters = centers.expandDims(0);
+    Logger.info('expanded points shape', expandedPoints.shape.toString());
+    Logger.info('expanded centers shape', expandedCenters.shape.toString());
+    const subtraction = expandedPoints.sub(expandedCenters);
+    Logger.info('Subtraction', subtraction);
+    const squared = subtraction.square();
+    Logger.info('Squared', squared);
+
+    // shortcut
+    const squaredDiff = expandedPoints.squaredDifference(expandedCenters);
+    Logger.info('Squared Diff', squaredDiff);
+    const sum = squared.sum(-1);
+
+    Logger.info('Sum', sum);
+    const sqrt = sum.sqrt();
+    Logger.info('Square root', sqrt);
+
+    dispose(sum);
+    dispose(squared);
+    dispose(subtraction);
+    dispose(points);
+    dispose(centers);
+    dispose(expandedPoints);
+    dispose(expandedCenters);
+    dispose(sqrt);
+    dispose(squaredDiff);
+
     Logger.info('-Example 1-', 'End');
 
     Logger.info('-Example 2-', 'Find lesser of each pair');
