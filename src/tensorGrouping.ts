@@ -67,9 +67,11 @@ async function iterativeGroup(
   let mean1Iterated: number[] = [];
   const clusters = 2;
   for (let i = 0; i < refinements; i++) {
+    // 1 -- Get distances to centers (centroids adjusted each iteration)
     const distances = getDistances(centroids, points);
-    // assign group number (0 or 1) based on if point at that index is closer to
-    //centroid 1 or centroid 2
+
+    // 2 -- Assign group number (0 or 1) based on if point at that index is closer to
+    // centroid 1 or centroid 2
     const assignments = distances.argMin(1);
     Logger.trace('distances', distances);
     const means: Array<tf.Tensor> = [
@@ -79,12 +81,14 @@ async function iterativeGroup(
     // Initialize with starting centerpoints, will always be size 2
     await (async () => {
       for (let clusterIndex = 0; clusterIndex < clusters; clusterIndex += 1) {
+        // 3 -- Get points assigned to a group
         const clusterPoints = await getClusterPoints(clusterIndex, points, assignments);
-        // Find the new centeroid of those points in the current group
+        // 4a -- Find the new centroid of those points in the current group
         if (clusterPoints.shape[0] > 1) {
           // Don't find centroid if group not defined
           const mean = centroid(clusterPoints);
           dispose(means[clusterIndex]);
+
           means[clusterIndex] = mean;
           Logger.trace('Cluster can be grouped', clusterPoints);
         } else {
@@ -94,6 +98,7 @@ async function iterativeGroup(
         // We have an extra empty dimension here we don't need, so remove it with `squeeze`.
         const centroidsGroup = tf.stack([means[0], means[1]]);
         dispose(centroids);
+        // 4b -- update the centroid for use in the next iteration
         centroids = centroidsGroup.squeeze([1]); // save new centroids
         [centroidsGroup, clusterPoints].forEach((t: tf.Tensor | tf.Tensor2D) => dispose(t));
         assignmentsIterated = (await assignments.array()) as number[];
@@ -122,7 +127,7 @@ async function iterativeGroup(
   more conveniently holds the output we pass to GroupData(...)
   */
   dispose(centroids);
-
+  // 4c -- Return the new centerpoint, and use it as the starting centerpoint next time a point is added
   return new GroupData(assignmentsIterated, [
     new Point(mean0Iterated[0], mean0Iterated[1]),
     new Point(mean1Iterated[0], mean1Iterated[1]),
