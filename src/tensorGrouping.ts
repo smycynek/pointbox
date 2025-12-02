@@ -122,6 +122,7 @@ async function iterativeGroup(
   more conveniently holds the output we pass to GroupData(...)
   */
   dispose(centroids);
+
   return new GroupData(assignmentsIterated, [
     new Point(mean0Iterated[0], mean0Iterated[1]),
     new Point(mean1Iterated[0], mean1Iterated[1]),

@@ -8,8 +8,8 @@ but it's mostly just to conveniently accept, display, and extract point data.
 */
 export class Point {
   public constructor(
-    public x: number,
-    public y: number
+    public readonly x: number,
+    public readonly y: number
   ) {}
   public toString(): string {
     return `(${formatter.format(round2(this.x)).padStart(6, '0')},

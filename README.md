@@ -1,8 +1,8 @@
 ## Point Box
 
-Version 0.1.0
-
 Copyright 2025 Steven Mycynek
+
+version: 000113
 
 # A point grouping app
 
