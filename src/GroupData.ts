@@ -6,8 +6,8 @@ determine if one group has no points yet
 */
 export class GroupData {
   public constructor(
-    public assignments: number[],
-    public centerPoints: Point[]
+    public readonly assignments: number[],
+    public readonly centerPoints: Point[]
   ) {}
   // If a group has 0 or 1 points, don't render the group
   public group1IsDefault(): boolean {

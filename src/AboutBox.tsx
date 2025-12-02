@@ -2,6 +2,7 @@ import { createSignal, Show } from 'solid-js';
 
 import { Portal } from 'solid-js/web';
 import styles from './App.module.css';
+import { version } from './version';
 export const AboutBox = () => {
   const [isOpen, setIsOpen] = createSignal(false);
   const closeDialog = () => setIsOpen(false);
@@ -10,6 +11,7 @@ export const AboutBox = () => {
       <button class={styles.aboutLink} onClick={() => setIsOpen(true)}>
         About...
       </button>
+      <span>v{version}</span>
       <Show when={isOpen()}>
         <Portal>
           <div class={styles.aboutDialogBackground} onClick={closeDialog}>
