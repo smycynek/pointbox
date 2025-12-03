@@ -141,7 +141,7 @@ export async function functionDemo() {
 
     Logger.info('points shape', points.shape.toString());
     Logger.info('centers shape', centers.shape.toString());
-    Logger.info('Note the shape mismatch', '');
+    Logger.info('Note the shape mismatch');
     const expandedPoints = points.expandDims(1);
     const expandedCenters = centers.expandDims(0);
     Logger.info('expanded points shape', expandedPoints.shape.toString());
