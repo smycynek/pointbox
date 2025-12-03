@@ -63,8 +63,6 @@ async function iterativeGroup(
 
   let centroids = logId(tf.tensor(initialCentroidsRaw), 'Centroids allocated');
   let assignmentsIterated: number[] = [];
-  let mean0Iterated: number[] = [];
-  let mean1Iterated: number[] = [];
   const clusters = 2;
   for (let i = 0; i < refinements; i++) {
     // 1 -- Get distances to centers (centroids adjusted each iteration)
@@ -102,14 +100,6 @@ async function iterativeGroup(
         centroids = centroidsGroup.squeeze([1]); // save new centroids
         [centroidsGroup, clusterPoints].forEach((t: tf.Tensor | tf.Tensor2D) => dispose(t));
         assignmentsIterated = (await assignments.array()) as number[];
-        const flattenedMean0 = means[0].squeeze([0]);
-        const flattenedMean1 = means[1].squeeze([0]);
-
-        mean0Iterated = (await flattenedMean0.array()) as number[]; // save centroids as array
-        mean1Iterated = (await flattenedMean1.array()) as number[];
-
-        dispose(flattenedMean0);
-        dispose(flattenedMean1);
       }
       Logger.info(`Centroids, iteration ${i}`, centroids);
     })();
@@ -118,19 +108,12 @@ async function iterativeGroup(
       dispose(t)
     );
   }
-  /*
-  You could derive these means from the single centroids tensor here rather than keeping the extra
-  arrays, but because because we already have means[0] and means[1],
-  are iterating on tensors, and getting data out of them
-  is an async operation, I found it easier to just store mean0Iterated and mean0Iterated.
-  Basically, the centroids tensor is used for the calculations, and the means array
-  more conveniently holds the output we pass to GroupData(...)
-  */
+  const meanRawData: number[][] = (await centroids.array()) as number[][];
   dispose(centroids);
   // 4c -- Return the new centerpoint, and use it as the starting centerpoint next time a point is added
   return new GroupData(assignmentsIterated, [
-    new Point(mean0Iterated[0], mean0Iterated[1]),
-    new Point(mean1Iterated[0], mean1Iterated[1]),
+    new Point(meanRawData[0][0], meanRawData[0][1]),
+    new Point(meanRawData[1][0], meanRawData[1][1]),
   ]);
 }
 
