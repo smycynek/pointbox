@@ -64,7 +64,7 @@ zip -vr "$APP".zip "$APP"
 scp "$APP".zip "$SITE":public_html
 
 # unzip zip at site, exit
-export SHELL_COMMAND="cd public_html; rm -rf $APP;  unzip $APP.zip; exit; bash"
+export SHELL_COMMAND="cd public_html; rm -rf $APP;  unzip $APP.zip; rm $APP.zip; exit; bash"
 echo "$SHELL_COMMAND"
 ssh -t "$SITE" "$SHELL_COMMAND"
 cd ../..

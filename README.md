@@ -2,7 +2,7 @@
 
 Copyright 2025 Steven Mycynek
 
-version: 000115
+version: 000116
 
 # A point grouping app
 
