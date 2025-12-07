@@ -74,8 +74,9 @@ async function iterativeGroup(
     if (assignments) {
       dispose(assignments);
     }
-    assignments = distances.argMin(1);
     Logger.trace('distances', distances);
+    assignments = distances.argMin(1); // Only two distances per pair, so min will be either index 0 or 1
+    Logger.trace('assignments', assignments);
     const means: Array<tf.Tensor> = [
       tf.tensor2d([initialCentroids[0].x, initialCentroids[0].y], [1, 2]),
       tf.tensor2d([initialCentroids[1].x, initialCentroids[1].y], [1, 2]),
