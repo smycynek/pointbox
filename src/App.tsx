@@ -213,6 +213,10 @@ const App: Component = () => {
     }
   };
 
+  const contextMenuHandler = (data: MouseEvent) => {
+    data.preventDefault();
+  };
+
   const mouseDownHandler = (data: MouseEvent) => {
     if (!context) {
       init();
@@ -300,7 +304,12 @@ const App: Component = () => {
         </p>
       </header>
       <header class={styles.header}>
-        <canvas class={styles.pointCanvas} onMouseDown={mouseDownHandler} id="main-canvas"></canvas>
+        <canvas
+          class={styles.pointCanvas}
+          oncontextmenu={contextMenuHandler}
+          onMouseDown={mouseDownHandler}
+          id="main-canvas"
+        ></canvas>
         <div></div>
       </header>
       <header class={styles.row}>
