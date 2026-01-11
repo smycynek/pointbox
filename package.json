@@ -1,5 +1,5 @@
 {
-  "name": "vite-template-solid",
+  "name": "Point Box",
   "version": "0.0.0",
   "description": "",
   "type": "module",
@@ -25,6 +25,7 @@
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.46.2",
     "vite": "^7.1.4",
+    "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-solid": "^2.11.8"
   },
   "dependencies": {

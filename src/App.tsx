@@ -306,7 +306,7 @@ const App: Component = () => {
       <header class={styles.header}>
         <canvas
           class={styles.pointCanvas}
-          oncontextmenu={contextMenuHandler}
+          onContextMenu={contextMenuHandler}
           onMouseDown={mouseDownHandler}
           id="main-canvas"
         ></canvas>
