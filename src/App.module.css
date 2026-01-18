@@ -1,15 +1,15 @@
 html,
 body {
   user-select: none;
-  touch-action: none;
-  -webkit-touch-callout: none; /* iOS Safari */
+  touch-action: manipulation;
+  -webkit-touch-callout: manipulation; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
 }
 
 div {
   user-select: none;
-  touch-action: none;
-  -webkit-touch-callout: none; /* iOS Safari */
+  touch-action: manipulation;
+  -webkit-touch-callout: manipulation; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
 }
 
